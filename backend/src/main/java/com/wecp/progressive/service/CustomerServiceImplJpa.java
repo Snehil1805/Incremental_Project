@@ -1,95 +1,90 @@
-// package com.wecp.progressive.service;
- 
-// import java.sql.SQLException;
-// import java.util.ArrayList;
-// import java.util.List;
+package com.wecp.progressive.service;
 
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.stereotype.Service;
 
-// import com.wecp.progressive.entity.Customers;
-// import com.wecp.progressive.repository.CustomerRepository;
+import com.wecp.progressive.entity.Customers;
+import com.wecp.progressive.exception.CustomerAlreadyExistsException;
+import com.wecp.progressive.repository.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// import java.util.Collections;
- 
-// @Service("customerServiceImplJpa")
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-// public class CustomerServiceImplJpa implements CustomerService {
-//     @Autowired
-//     private CustomerRepository customerRepository;
+@Service
+public class CustomerServiceImplJpa implements CustomerService {
 
-//     List<Customers> cus = new ArrayList<>();
+    private final CustomerRepository customerRepository;
 
-//     @Override
-//     public List<Customers> getAllCustomers() throws SQLException {
-//         return customerRepository.findAll();
-        
-//     }
+    @Autowired
+    public CustomerServiceImplJpa(CustomerRepository customerRepository) {
+        this.customerRepository = customerRepository;
+    }
 
-//     @Override
-//     public Customers getCustomerById(int customerId) throws SQLException {
-//         return customerRepository.findById(customerId).get();
-        
-//     }
+    private static List<Customers> customersList = new ArrayList<>();
+    @Override
+    public List<Customers> getAllCustomers() {
+        return customerRepository.findAll();
+    }
 
-//     @Override
-//     public int addCustomer(Customers customers) throws SQLException {
-//         return customerRepository.save(customers).getCustomerId();
-//     }
+    @Override
+    public Customers getCustomerById(int customerId) {
+        return customerRepository.findByCustomerId(customerId);
+    }
 
-//     @Override
-//     public void updateCustomer(Customers customers) throws SQLException {
-//         Customers c = customerRepository.findById(customers.getCustomerId()).orElse(null);
-//         if(c != null){
-//             c.setName(customers.getName());
-//             c.setEmail(customers.getEmail());
-//             c.setPassword(customers.getPassword());
-//             c.setRole(customers.getRole());
-//             c.setUsername(customers.getUsername());
-//             customerRepository.save(c);
-//         }
-        
-//     }
+    @Override
+    public int addCustomer(Customers customers) {
+        Customers customers1 = customerRepository.findByNameAndEmail(customers.getName(), customers.getEmail());
+        if (customers1 != null) {
+            throw new CustomerAlreadyExistsException("Customer already exists");
+        }
+        return customerRepository.save(customers).getCustomerId();
+    }
 
-//     @Override
-//     public void deleteCustomer(int customerId) throws SQLException {
-//         customerRepository.deleteById(customerId);
+    @Override
+    public void updateCustomer(Customers customers) {
+        customerRepository.save(customers);
+    }
 
-        
-//     }
+    @Override
+    @Transactional
+    @Modifying
+    public void deleteCustomer(int customerId) {
+        customerRepository.deleteByCustomerId(customerId);
+    }
 
-//     @Override
-//     public List<Customers> getAllCustomersSortedByName() throws SQLException {
-//         return customerRepository.findAllByOrderByNameAsc();
-        
-//     }
+    @Override
+    public List<Customers> getAllCustomersSortedByName() {
+        List<Customers> sortedCustomers = customerRepository.findAll();
+        Collections.sort(sortedCustomers);
+        return sortedCustomers;
+    }
 
-//     @Override
-//     public List<Customers> getAllCustomersFromArrayList() {
-//         return cus;
 
-        
-//     }
 
-//     @Override
-//     public List<Customers> addCustomersToArrayList(Customers customers) {
-//         cus.add(customers);
-//         return cus;
-        
-        
-//     }
+    // The methods mentioned below have to be used for storing and manipulating data in an ArrayList.
+    @Override
+    public List<Customers> getAllCustomersFromArrayList() {
+        return customersList;
+    }
 
-//     @Override
-//     public List<Customers> getAllCustomersSortedByNameFromArrayList() {
-//         Collections.sort(cus);
-//         return cus;
-        
-//     }
+    @Override
+    public List<Customers> addCustomersToArrayList(Customers customers) {
+        customersList.add(customers);
+        return customersList;
+    }
 
-//     @Override
-//     public void emptyArrayList() {
-//         cus.clear();
-        
-//     }
-   
-// }
+    @Override
+    public List<Customers> getAllCustomersSortedByNameFromArrayList() {
+        List<Customers> sortedCustomers = customersList;
+        Collections.sort(sortedCustomers);
+        return sortedCustomers;
+    }
+
+    @Override
+    public void emptyArrayList() {
+        customersList = new ArrayList<>();
+    }
+}
