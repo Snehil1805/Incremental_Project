@@ -1,7 +1,6 @@
+import { AccountTS } from './Accountts';
 
-//import { Account } from './Account';
-
-export class Transaction {
+export class TransactionTS {
     transactionId?: number;
     accountId: string;
     amount: number;
@@ -24,5 +23,5 @@ export class Transaction {
     }
 }
 
-const transaction = new Transaction("1", 50.00, new Date(), 1);
+const transaction = new TransactionTS("1", 50.00, new Date(), 1);
 transaction.displayInfo();

@@ -1,5 +1,5 @@
 
-export class Customer {
+export class CustomerTS {
     customerId?: string;
     name: string;
     email: string;
@@ -29,7 +29,7 @@ export class Customer {
 
 
 // Example Usage
-const customer = new Customer("John Doe", "john@example.com", "john_doe", "password123", "User", "1");
+const customer = new CustomerTS("John Doe", "john@example.com", "john_doe", "password123", "User", "1");
 customer.displayInfo();
 
 
