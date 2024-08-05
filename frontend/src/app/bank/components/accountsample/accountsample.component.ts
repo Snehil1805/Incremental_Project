@@ -10,5 +10,4 @@ import { AccountTS } from '../../types/tstypes/Accountts';
 })
 export class AccountsampleComponent {
   account:AccountTS = new AccountTS("1", 1000.00, "1");
- 
 }

@@ -2,6 +2,7 @@ package com.wecp.progressive.controller;
 
 
 import com.wecp.progressive.entity.Customers;
+import com.wecp.progressive.service.CustomerLoginService;
 import com.wecp.progressive.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,13 +17,15 @@ import java.util.List;
 @RequestMapping("/customers")
 public class CustomerController {
 
-    @Autowired
     private final CustomerService customerService;
-
+    private CustomerLoginService customerLoginService;
     
-    public CustomerController(@Qualifier("customerServiceImplJpa") CustomerService customerService) {
+    @Autowired
+    public CustomerController(@Qualifier("customerServiceImplJpa") CustomerService customerService, CustomerLoginService customerLoginService) {
         this.customerService = customerService;
+        this.customerLoginService = customerLoginService;
     }
+
 
     @GetMapping
     public ResponseEntity<List<Customers>> getAllCustomers() {
@@ -62,9 +65,10 @@ public class CustomerController {
     public ResponseEntity<Void> updateCustomer(@PathVariable int customerId, @RequestBody Customers customers) {
         try {
             customers.setCustomerId(customerId);
-            customerService.updateCustomer(customers);
+            
+            customerLoginService.updateUser(customers);
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
